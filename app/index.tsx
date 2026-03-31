@@ -1,23 +1,51 @@
 import { useRouter } from "expo-router";
+import { useState } from "react"; // ✅ added
 import { Controller, useForm } from "react-hook-form";
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useTheme } from "../context/ThemeContext";
 
 export default function Login(){
 
 const {control, handleSubmit} = useForm();
 const router = useRouter();
+const { theme, toggleTheme, isDark } = useTheme(); // ✅ updated
+const [error, setError] = useState(""); // ✅ added
 
-const onSubmit = ()=>{
-  router.push("/home");
+const onSubmit = (data:any)=>{
+  const { email, password } = data;
+
+  if(email === "admin@gmail.com" && password === "1234"){
+    setError("");
+    router.push("/home");
+  } else {
+    setError("Invalid email or password");
+  }
 };
 
 return(
 
-<View style={styles.container}>
+<View style={[styles.container, { backgroundColor: theme.background }]}>
 
-<View style={styles.card}>
+{/* ✅ TOP RIGHT BUTTON */}
+<TouchableOpacity
+  onPress={toggleTheme}
+  style={{
+    position: "absolute",
+    top: 50,
+    right: 20,
+    backgroundColor: theme.primary,
+    padding: 10,
+    borderRadius: 20
+  }}
+>
+  <Text style={{ color: "#fff", fontSize: 12 }}>
+    {isDark ? "Light" : "Dark"}
+  </Text>
+</TouchableOpacity>
 
-<Text style={styles.title}>Log in</Text>
+<View style={[styles.card, { backgroundColor: theme.card }]}>
+
+<Text style={[styles.title, { color: theme.primary }]}>Log in</Text>
 
 <Controller
 control={control}
@@ -26,7 +54,8 @@ rules={{required:true}}
 render={({field:{onChange,value}})=>(
 <TextInput
 placeholder="Email"
-style={styles.input}
+placeholderTextColor="#888"
+style={[styles.input, { borderColor: theme.input, color: theme.text }]}
 value={value}
 onChangeText={onChange}
 />
@@ -40,20 +69,26 @@ rules={{required:true}}
 render={({field:{onChange,value}})=>(
 <TextInput
 placeholder="Password"
+placeholderTextColor="#888"
 secureTextEntry
-style={styles.input}
+style={[styles.input, { borderColor: theme.input, color: theme.text }]}
 value={value}
 onChangeText={onChange}
 />
 )}
 />
 
-<TouchableOpacity style={styles.loginBtn} onPress={handleSubmit(onSubmit)}>
+{/* ✅ ERROR MESSAGE */}
+{error ? (
+  <Text style={{ color: "red", marginBottom: 10 }}>{error}</Text>
+) : null}
+
+<TouchableOpacity style={[styles.loginBtn, { backgroundColor: theme.primary }]} onPress={handleSubmit(onSubmit)}>
 <Text style={styles.btnText}>Log in</Text>
 </TouchableOpacity>
 
 <TouchableOpacity onPress={()=>router.push("/register")}>
-<Text style={styles.signup}>or, sign up</Text>
+<Text style={[styles.signup, { color: theme.text }]}>Do you have already an account? <Text style={{ color: theme.primary }}>Sign up</Text></Text>
 </TouchableOpacity>
 
 </View>
@@ -66,13 +101,11 @@ const styles = StyleSheet.create({
 
 container:{
 flex:1,
-backgroundColor:"#000",
 justifyContent:"center",
 alignItems:"center"
 },
 
 card:{
-backgroundColor:"#111",
 width:320,
 padding:25,
 borderRadius:15
@@ -80,22 +113,18 @@ borderRadius:15
 
 title:{
 fontSize:32,
-color:"#ff0000",
 fontWeight:"bold",
 marginBottom:20
 },
 
 input:{
 borderWidth:1,
-borderColor:"#333",
 padding:12,
 borderRadius:8,
 marginBottom:15,
-color:"white"
 },
 
 loginBtn:{
-backgroundColor:"#ff0000",
 padding:14,
 borderRadius:8,
 alignItems:"center"
@@ -109,7 +138,6 @@ fontSize:18
 signup:{
 marginTop:15,
 textAlign:"center",
-color:"#aaa"
 }
 
 });

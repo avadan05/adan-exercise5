@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useTheme } from "../context/ThemeContext";
 
 type FormData = {
   firstName: string;
@@ -14,10 +15,11 @@ export default function SetupAccount() {
   const { control, handleSubmit } = useForm<FormData>();
   const [image, setImage] = useState<string | null>(null);
   const router = useRouter();
+  const { theme, toggleTheme, isDark } = useTheme();
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
+      mediaTypes: ImagePicker.MediaTypeOptions.Images, // ✅ FIX
       quality: 1,
     });
 
@@ -33,11 +35,26 @@ export default function SetupAccount() {
 
   return (
 
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
 
-      <Text style={styles.title}>Setup Profile</Text>
+      {/* ✅ TOP RIGHT BUTTON */}
+      <TouchableOpacity
+        onPress={toggleTheme}
+        style={styles.toggleBtn}
+      >
+        <Text style={styles.toggleText}>
+          {isDark ? "Light" : "Dark"}
+        </Text>
+      </TouchableOpacity>
 
-      <TouchableOpacity style={styles.photoBtn} onPress={pickImage}>
+      <Text style={[styles.title, { color: theme.primary }]}>
+        Setup Profile
+      </Text>
+
+      <TouchableOpacity 
+        style={[styles.photoBtn, { backgroundColor: theme.primary }]} 
+        onPress={pickImage}
+      >
         <Text style={{ color: "white" }}>Upload Profile Photo</Text>
       </TouchableOpacity>
 
@@ -51,8 +68,8 @@ export default function SetupAccount() {
           <TextInput
             placeholder="First Name"
             placeholderTextColor="#aaa"
-            style={styles.input}
-            value={value}
+            style={[styles.input, { borderColor: theme.primary, color: theme.text }]}
+            value={value || ""} // ✅ FIX
             onChangeText={onChange}
           />
         )}
@@ -66,14 +83,17 @@ export default function SetupAccount() {
           <TextInput
             placeholder="Last Name"
             placeholderTextColor="#aaa"
-            style={styles.input}
-            value={value}
+            style={[styles.input, { borderColor: theme.primary, color: theme.text }]}
+            value={value || ""} // ✅ FIX
             onChangeText={onChange}
           />
         )}
       />
 
-      <TouchableOpacity style={styles.btn} onPress={handleSubmit(onSubmit)}>
+      <TouchableOpacity 
+        style={[styles.btn, { backgroundColor: theme.primary }]} 
+        onPress={handleSubmit(onSubmit)}
+      >
         <Text style={styles.btnText}>Finish Setup</Text>
       </TouchableOpacity>
 
@@ -86,12 +106,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    backgroundColor: "#000",
     padding: 25
   },
 
   title: {
-    color: "#ff0000",
     fontSize: 30,
     fontWeight: "bold",
     textAlign: "center",
@@ -99,7 +117,6 @@ const styles = StyleSheet.create({
   },
 
   photoBtn: {
-    backgroundColor: "#ff0000",
     padding: 12,
     borderRadius: 10,
     alignItems: "center",
@@ -115,17 +132,13 @@ const styles = StyleSheet.create({
   },
 
   input: {
-    backgroundColor: "#111",
     borderWidth: 1,
-    borderColor: "#ff0000",
-    color: "white",
     padding: 15,
     borderRadius: 10,
     marginBottom: 15
   },
 
   btn: {
-    backgroundColor: "#ff0000",
     padding: 15,
     borderRadius: 10,
     alignItems: "center"
@@ -135,6 +148,21 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 18,
     fontWeight: "bold"
+  },
+
+  // ✅ toggle styles
+  toggleBtn:{
+    position:"absolute",
+    top:50,
+    right:20,
+    padding:10,
+    borderRadius:20,
+    backgroundColor:"#888"
+  },
+
+  toggleText:{
+    color:"#fff",
+    fontSize:12
   }
 
 });

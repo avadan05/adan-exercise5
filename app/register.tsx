@@ -1,12 +1,14 @@
 import { useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useTheme } from "../context/ThemeContext";
 
 export default function Register(){
 
   const router = useRouter();
   const { control, handleSubmit, watch } = useForm();
   const password = watch("password");
+  const { theme, toggleTheme, isDark } = useTheme();
 
   const onSubmit = () => {
     router.push("/setup-account");
@@ -14,11 +16,21 @@ export default function Register(){
 
   return(
 
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
 
-      <View style={styles.card}>
+      {/* ✅ TOP RIGHT BUTTON */}
+      <TouchableOpacity
+        onPress={toggleTheme}
+        style={styles.toggleBtn}
+      >
+        <Text style={styles.toggleText}>
+          {isDark ? "Light" : "Dark"}
+        </Text>
+      </TouchableOpacity>
 
-        <Text style={styles.title}>Sign Up</Text>
+      <View style={[styles.card, { backgroundColor: theme.card }]}>
+
+        <Text style={[styles.title, { color: theme.primary }]}>Sign Up</Text>
 
         <Controller
           control={control}
@@ -28,8 +40,8 @@ export default function Register(){
             <TextInput
               placeholder="Email"
               placeholderTextColor="#aaa"
-              style={styles.input}
-              value={value}
+              style={[styles.input, { borderColor: theme.input, color: theme.text }]}
+              value={value || ""}   // ✅ FIX
               onChangeText={onChange}
             />
           )}
@@ -44,8 +56,8 @@ export default function Register(){
               placeholder="Password"
               placeholderTextColor="#aaa"
               secureTextEntry
-              style={styles.input}
-              value={value}
+              style={[styles.input, { borderColor: theme.input, color: theme.text }]}
+              value={value || ""}   // ✅ FIX
               onChangeText={onChange}
             />
           )}
@@ -62,19 +74,24 @@ export default function Register(){
               placeholder="Confirm Password"
               placeholderTextColor="#aaa"
               secureTextEntry
-              style={styles.input}
-              value={value}
+              style={[styles.input, { borderColor: theme.input, color: theme.text }]}
+              value={value || ""}   // ✅ FIX
               onChangeText={onChange}
             />
           )}
         />
 
-        <TouchableOpacity style={styles.loginBtn} onPress={handleSubmit(onSubmit)}>
+        <TouchableOpacity 
+          style={[styles.loginBtn, { backgroundColor: theme.primary }]} 
+          onPress={handleSubmit(onSubmit)}
+        >
           <Text style={styles.btnText}>Register</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={()=>router.replace("/")}>
-          <Text style={styles.signup}>Already have an account? Log in</Text>
+          <Text style={[styles.signup, { color: theme.text }]}>
+            Already have an account? Log in
+          </Text>
         </TouchableOpacity>
 
       </View>
@@ -87,13 +104,11 @@ const styles = StyleSheet.create({
 
   container:{
     flex:1,
-    backgroundColor:"#000",
     justifyContent:"center",
     alignItems:"center"
   },
 
   card:{
-    backgroundColor:"#111",
     width:320,
     padding:25,
     borderRadius:15
@@ -101,22 +116,18 @@ const styles = StyleSheet.create({
 
   title:{
     fontSize:32,
-    color:"#ff0000",
     fontWeight:"bold",
     marginBottom:20
   },
 
   input:{
     borderWidth:1,
-    borderColor:"#333",
     padding:12,
     borderRadius:8,
     marginBottom:15,
-    color:"white"
   },
 
   loginBtn:{
-    backgroundColor:"#ff0000",
     padding:14,
     borderRadius:8,
     alignItems:"center"
@@ -130,7 +141,21 @@ const styles = StyleSheet.create({
   signup:{
     marginTop:15,
     textAlign:"center",
-    color:"#aaa"
+  },
+
+  // ✅ CLEAN button styles
+  toggleBtn:{
+    position:"absolute",
+    top:50,
+    right:20,
+    padding:10,
+    borderRadius:20,
+    backgroundColor:"#888"
+  },
+
+  toggleText:{
+    color:"#fff",
+    fontSize:12
   }
 
 });
